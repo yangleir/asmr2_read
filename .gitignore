@@ -1,0 +1,8 @@
+# python ignre
+.idea/
+*.png
+*.ps
+test_data/*.h5
+*.npy
+gmt.*
+test2.py

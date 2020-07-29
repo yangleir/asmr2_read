@@ -1,0 +1,21 @@
+#!/bin/bash
+gmt gmtset FORMAT_GEO_MAP = ddd:mm:ssF
+gmt gmtset MAP_FRAME_WIDTH=2p PS_CHAR_ENCODING = ISOLatin1+
+gmt gmtset FONT_ANNOT_PRIMARY 7p,Helvetica,black FONT_LABEL 7p,Helvetica,black
+
+awk '{print $4,$3,$1-$2}' output.npy >tmp.xyz
+R=`gmt gmtinfo tmp.xyz -I0.000001`
+
+gmt makecpt -Crainbow tmp.xyz -i2 -Z -E240 > my_depths.cpt
+gmt makecpt -Crainbow -T-2000/3000/25  > my_depths.cpt
+
+gmt xyz2grd tmp.xyz $R -Gtmp.grd -I25k
+# gmt surface tmp.xyz -R -Gtmp.grd -T0.25 -I62.5km -C0.1
+gmt grdinfo tmp.grd
+
+gmt grdimage tmp.grd -R -JM4i -Cmy_depths.cpt -K -P -Y8 > out.ps
+gmt pscoast -R -J -Dc  -W0.1p -Bxa30g60 -Bya10g10 -BNSWE -O -K>>out.ps
+gmt psscale -Cmy_depths.cpt -D8/-1.5/8/0.4h -Ba400 -O >> out.ps
+
+gmt psconvert out.ps -A -P -Tg
+rm .gmt* my_depths.cpt tmp.*
